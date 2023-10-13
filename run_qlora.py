@@ -30,7 +30,7 @@ def main():
         )
 
     sentence = ["you are beautiful", "you look perfect tonight"]
-    model_input = tokenizer(sentence, return_tensors='pt')
+    model_input = tokenizer(sentence, padding=True, return_tensors='pt')
     output_fp = model(**model_input)
     output_nf = qmodel(**model_input)
 
