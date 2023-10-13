@@ -98,9 +98,11 @@ def main(args):
     repo = Repository(ckpt_dir, clone_from=repo_id, token=HF_TOKEN)
 
     base_model = model.get_base_model()
-    model.save_pretrained(ckpt_dir, push_to_hub=True, repo_name=repo_name)
-    base_model.save_pretrained(ckpt_dir, push_to_hub=True, repo_name=repo_name)
-    tokenizer.save_pretrained(ckpt_dir, push_to_hub=True, repo_name=repo_name)
+    model.save_pretrained(ckpt_dir)
+    base_model.save_pretrained(ckpt_dir)
+    tokenizer.save_pretrained(ckpt_dir)
+
+    repo.push_to_hub(commit_message="Upload decomposed weights", auto_lfs_prune=True)
 
 
 def edit_lora_alpha(args):
