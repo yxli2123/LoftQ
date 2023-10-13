@@ -426,9 +426,6 @@ def qlora_init(weight, num_bits, reduced_rank, num_iter, method='normal'):
 
     lora_A, lora_B = R, L
 
-    quant_error = (weight - dequantized_weight).power(2).mean().sqrt()
-    print(quant_error)
-
     return dequantized_weight, lora_A, lora_B
 
 
