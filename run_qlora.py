@@ -36,6 +36,9 @@ def main():
 
     logit_fp = output_fp[0][0, 0]
     logit_nf = output_nf[0][0, 0]
+    logit_fp = torch.nn.functional.softmax(logit_fp)
+    logit_nf = torch.nn.functional.softmax(logit_nf)
+
     print(logit_fp)
     print(logit_nf)
 
