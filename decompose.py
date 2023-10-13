@@ -5,6 +5,7 @@ import argparse
 import os
 from peft import LoraConfig, TaskType, get_peft_model, PeftModel
 import json
+from huggingface_hub import Repository, create_repo
 
 HF_TOKEN = "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"
 
@@ -92,6 +93,10 @@ def main(args):
 
     # save
     repo_name = args.model_name.split('/')[-1] + f"_bit{args.num_bits}" + f"_iter{args.num_iter}" + f"_rank{args.reduced_rank}"
+    repo_id = create_repo(repo_name, exist_ok=True, token=HF_TOKEN).repo_id
+    # Clone repo locally
+    repo = Repository(ckpt_dir, clone_from=repo_id, token=HF_TOKEN)
+
     base_model = model.get_base_model()
     model.save_pretrained(ckpt_dir, push_to_hub=True, repo_name=repo_name)
     base_model.save_pretrained(ckpt_dir, push_to_hub=True, repo_name=repo_name)
