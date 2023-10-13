@@ -8,9 +8,28 @@ import json
 from huggingface_hub import Repository, create_repo
 
 HF_TOKEN = "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"
+REPO_TOKEN = "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"
 
 
 def main(args):
+    # create repo
+    ckpt_dir = os.path.join(args.path_to_model_zoo,
+                            args.model_name.split('/')[-1],
+                            f"bit{args.num_bits}",
+                            f"iter{args.num_iter}",
+                            f"rank{args.reduced_rank}")
+    # ckpt_dir = os.path.join(args.path_to_model_zoo,
+    #                         args.model_name.split('/')[-1],
+    #                         f"high_bit_layer{args.high_bit_layer}",
+    #                         f"iter{args.num_iter}",
+    #                         f"rank{args.reduced_rank}")
+    repo_name = "LoftQ/" + args.model_name.split('/')[
+        -1] + f"-bit{args.num_bits}" + f"-iter{args.num_iter}" + f"-rank{args.reduced_rank}"
+    repo_id = create_repo(repo_name, exist_ok=True, token=REPO_TOKEN).repo_id
+    # Clone repo locally
+    repo = Repository(ckpt_dir, clone_from=repo_id, token=REPO_TOKEN)
+
+    # tokenizer
     tokenizer = AutoTokenizer.from_pretrained(args.model_name, use_auth_token=HF_TOKEN)
 
     # bart
@@ -41,6 +60,8 @@ def main(args):
 
     else:
         raise NotImplementedError("model not supported")
+
+    model.save_pretrained(ckpt_dir)
 
     model = get_peft_model(model, peft_config)
     model.print_trainable_parameters()
@@ -80,26 +101,7 @@ def main(args):
     for name, param in model.named_parameters():
         print(name, param.shape, param.max(), param.min(), param.mean(), param.requires_grad)
 
-    ckpt_dir = os.path.join(args.path_to_model_zoo,
-                            args.model_name.split('/')[-1],
-                            f"bit{args.num_bits}",
-                            f"iter{args.num_iter}",
-                            f"rank{args.reduced_rank}")
-    # ckpt_dir = os.path.join(args.path_to_model_zoo,
-    #                         args.model_name.split('/')[-1],
-    #                         f"high_bit_layer{args.high_bit_layer}",
-    #                         f"iter{args.num_iter}",
-    #                         f"rank{args.reduced_rank}")
-
-    # save
-    repo_name = "LoftQ/" + args.model_name.split('/')[-1] + f"-bit{args.num_bits}" + f"-iter{args.num_iter}" + f"-rank{args.reduced_rank}"
-    repo_id = create_repo(repo_name, exist_ok=True, token=REPO_TOKEN).repo_id
-    # Clone repo locally
-    repo = Repository(ckpt_dir, clone_from=repo_id, token=REPO_TOKEN)
-
-    base_model = model.get_base_model()
     model.save_pretrained(ckpt_dir)
-    base_model.save_pretrained(ckpt_dir)
     tokenizer.save_pretrained(ckpt_dir)
 
     repo.push_to_hub(commit_message="Upload decomposed weights", auto_lfs_prune=True)
@@ -167,7 +169,7 @@ if __name__ == '__main__':
                         help='tiiuae/falcon-7b, meta-llama/Llama-2-7b-hf, meta-llama/Llama-2-7b-chat-hf, facebook/bart-large')
     parser.add_argument('--num_bits',       type=int, default=4)
     parser.add_argument('--reduced_rank',   type=int, default=64)
-    parser.add_argument('--num_iter',       type=int, default=1)
+    parser.add_argument('--num_iter',       type=int, default=0)
     parser.add_argument('--high_bit_layer', type=int, default=4)
 
     args = parser.parse_args()
