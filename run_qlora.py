@@ -34,8 +34,10 @@ def main():
     output_fp = model(**model_input)
     output_nf = qmodel(**model_input)
 
-    logit_fp = output_fp[0]
-    logit_nf = output_nf[0]
+    logit_fp = output_fp[0][0, 0]
+    logit_nf = output_nf[0][0, 0]
+    print(logit_fp)
+    print(logit_nf)
 
     kl_div_1 = torch.nn.functional.kl_div(logit_fp, logit_nf)
     kl_div_2 = torch.nn.functional.kl_div(logit_nf, logit_fp)
