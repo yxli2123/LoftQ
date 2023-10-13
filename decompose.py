@@ -45,7 +45,7 @@ def main(args):
     model = get_peft_model(model, peft_config)
     model.print_trainable_parameters()
     print(model)
-    model = model.to('cuda')
+    #model = model.to('cuda')
 
     # This is only for decomposition
     utils.substitute_layer_weights(model,
@@ -92,7 +92,7 @@ def main(args):
     #                         f"rank{args.reduced_rank}")
 
     # save
-    repo_name = args.model_name.split('/')[-1] + f"_bit{args.num_bits}" + f"_iter{args.num_iter}" + f"_rank{args.reduced_rank}"
+    repo_name = "LoftQ/" + args.model_name.split('/')[-1] + f"_bit{args.num_bits}" + f"_iter{args.num_iter}" + f"_rank{args.reduced_rank}"
     repo_id = create_repo(repo_name, exist_ok=True, token=REPO_TOKEN).repo_id
     # Clone repo locally
     repo = Repository(ckpt_dir, clone_from=repo_id, token=REPO_TOKEN)
@@ -161,14 +161,13 @@ def lora_only(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str, default='normal', choices=['normal', 'uniform'])
-    parser.add_argument('--path_to_model_zoo', type=str, default='/home/yli3551/yixiaoli_model_zoo_hf/')
-    parser.add_argument('--model_name', type=str, default='meta-llama/Llama-2-7b-chat-hf',
+    parser.add_argument('--path_to_model_zoo', type=str, default='./yixiaoli_model_zoo_hf/')
+    parser.add_argument('--model_name', type=str, default='facebook/bart-large',
                         help='tiiuae/falcon-7b, meta-llama/Llama-2-7b-hf, meta-llama/Llama-2-7b-chat-hf, facebook/bart-large')
     parser.add_argument('--num_bits', type=int, default=4)
     parser.add_argument('--reduced_rank', type=int, default=64)
     parser.add_argument('--num_iter', type=int, default=1)
     parser.add_argument('--high_bit_layer', type=int, default=4)
-
 
     args = parser.parse_args()
 
