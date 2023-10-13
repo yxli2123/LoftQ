@@ -34,10 +34,8 @@ def main():
     output_fp = model(**model_input)
     output_nf = qmodel(**model_input)
 
-    print(output_fp)
-    print(output_nf)
-    error = ((output_fp[0] - output_nf[0])**2).mean().sqrt()
-    print(error)
+    print(output_fp[0].shape)
+    print(output_nf[0].shape)
 
 
 if __name__ == '__main__':
