@@ -15,6 +15,8 @@ REPO_TOKEN = "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"
 def main():
     model_name = 'LoftQ/Llama-2-7b-hf-bit4-iter5-rank64'
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=REPO_TOKEN)
+    tokenizer.pad_token_id = 0       # unk. we want this to be different from the eos token
+    tokenizer.padding_side = "left"  # Allow batched inference
 
     model_fp32 = AutoModelForCausalLM.from_pretrained(
             'meta-llama/Llama-2-7b-hf',
