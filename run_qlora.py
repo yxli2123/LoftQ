@@ -31,6 +31,7 @@ def main():
             trust_remote_code=True,
             token=REPO_TOKEN,
         )
+    model_bit4_real.save_p
 
     model_bit4_bnb = AutoModelForSeq2SeqLM.from_pretrained(
         'facebook/bart-large',

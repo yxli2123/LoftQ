@@ -99,8 +99,7 @@ def main(args):
     for name, param in model.named_parameters():
         print(name, param.shape, param.max(), param.min(), param.mean(), param.requires_grad)
 
-    base_model = model.get_base_model()
-    base_model.save_pretrained(ckpt_dir)
+    model.base_model.save_pretrained(ckpt_dir)
     model.save_pretrained(ckpt_dir)
     tokenizer.save_pretrained(ckpt_dir)
 
@@ -165,11 +164,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str, default='normal', choices=['normal', 'uniform'])
     parser.add_argument('--path_to_model_zoo', type=str, default='./yixiaoli_model_zoo_hf/')
-    parser.add_argument('--model_name', type=str, default='facebook/bart-large',
+    parser.add_argument('--model_name', type=str, default='meta-llama/Llama-2-7b-hf',
                         help='tiiuae/falcon-7b, meta-llama/Llama-2-7b-hf, meta-llama/Llama-2-7b-chat-hf, facebook/bart-large')
     parser.add_argument('--num_bits',       type=int, default=4)
     parser.add_argument('--reduced_rank',   type=int, default=64)
-    parser.add_argument('--num_iter',       type=int, default=0)
+    parser.add_argument('--num_iter',       type=int, default=1)
     parser.add_argument('--high_bit_layer', type=int, default=4)
 
     args = parser.parse_args()
