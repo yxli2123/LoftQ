@@ -51,7 +51,7 @@ def main():
     model_bit4_fake = model_bit4_fake.to('cuda')
     model_bit4_real = model_bit4_real.to('cuda')
 
-    sentence = ["you are beautiful", "you look perfect tonight"]
+    sentence = ["you are beautiful", "you look perfect tonight, really?"]
     model_input = tokenizer(sentence, padding=True, return_tensors='pt')
     model_input = {k: v.to('cuda') for k, v in model_input.items()}
 
