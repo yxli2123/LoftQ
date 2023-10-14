@@ -61,8 +61,6 @@ def main(args):
     else:
         raise NotImplementedError("model not supported")
 
-    model.save_pretrained(ckpt_dir)
-
     model = get_peft_model(model, peft_config)
     model.print_trainable_parameters()
     print(model)
@@ -101,6 +99,8 @@ def main(args):
     for name, param in model.named_parameters():
         print(name, param.shape, param.max(), param.min(), param.mean(), param.requires_grad)
 
+    base_model = model.get_base_model()
+    base_model.save_pretrained(ckpt_dir)
     model.save_pretrained(ckpt_dir)
     tokenizer.save_pretrained(ckpt_dir)
 
