@@ -14,7 +14,7 @@ REPO_TOKEN = "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"
 
 def main():
     model_name = 'LoftQ/Llama-2-7b-hf-bit4-iter5-rank64'
-    tokenizer = AutoTokenizer.from_pretrained(model_name, token=REPO_TOKEN)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=REPO_TOKEN)
 
     model_fp32 = AutoModelForCausalLM.from_pretrained(
             'meta-llama/Llama-2-7b-hf',
@@ -40,10 +40,12 @@ def main():
 
     model_bit4_fake = PeftModel.from_pretrained(model_bit4_fake,
                                                 model_name,
-                                                is_trainable=False)
+                                                is_trainable=False,
+                                                use_auth_token=REPO_TOKEN)
     model_bit4_real = PeftModel.from_pretrained(model_bit4_real,
                                                 model_name,
-                                                is_trainable=False)
+                                                is_trainable=False,
+                                                use_auth_token=REPO_TOKEN)
     model_bit4_fake = model_bit4_fake.to('cuda')
     model_bit4_real = model_bit4_real.to('cuda')
 
