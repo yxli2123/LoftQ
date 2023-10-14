@@ -20,8 +20,8 @@ def main():
             'meta-llama/Llama-2-7b-hf',
             device_map='auto',
             trust_remote_code=True,
-            token=HF_TOKEN)
-    model_bit4_fake = AutoModelForCausalLM.from_pretrained(model_name, token=REPO_TOKEN)
+            use_auth_token=HF_TOKEN)
+    model_bit4_fake = AutoModelForCausalLM.from_pretrained(model_name, use_auth_token=REPO_TOKEN)
     model_bit4_real = AutoModelForCausalLM.from_pretrained(
             model_name,
             load_in_4bit=True,
@@ -35,7 +35,7 @@ def main():
                 bnb_4bit_quant_type='nf4',
             ),
             trust_remote_code=True,
-            token=REPO_TOKEN,
+            use_auth_token=REPO_TOKEN,
         )
 
     model_bit4_fake = PeftModel.from_pretrained(model_bit4_fake,
