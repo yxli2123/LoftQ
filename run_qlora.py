@@ -44,9 +44,12 @@ def main():
     model_bit4_real = PeftModel.from_pretrained(model_bit4_real,
                                                 model_name,
                                                 is_trainable=False)
+    model_bit4_fake = model_bit4_fake.to('cuda')
+    model_bit4_real = model_bit4_real.to('cuda')
 
     sentence = ["you are beautiful", "you look perfect tonight"]
     model_input = tokenizer(sentence, padding=True, return_tensors='pt')
+    model_input = {k: v.to('cuda') for k, v in model_input.items()}
 
     logits_fp32 = model_fp32(**model_input)[0]
     logits_4bit_fake = model_bit4_fake(**model_input)[0]
