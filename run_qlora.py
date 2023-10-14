@@ -13,7 +13,7 @@ HF_TOKEN = "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"
 REPO_TOKEN = "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"
 
 def main():
-    model_name = 'LoftQ/bart-large-bit4-iter0-rank32'
+    model_name = 'LoftQ/Llama-2-7b-hf-bit4-iter5-rank64'
     tokenizer = AutoTokenizer.from_pretrained(model_name, token=REPO_TOKEN)
 
     model_fp32 = AutoModelForCausalLM.from_pretrained(
