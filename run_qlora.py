@@ -10,7 +10,7 @@ HF_TOKEN = "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"
 REPO_TOKEN = "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"
 
 def main():
-    model_name = 'LoftQ/bart-large-bit4-iter0-rank64'
+    model_name = 'LoftQ/bart-large-bit4-iter0-rank32'
     tokenizer = AutoTokenizer.from_pretrained(model_name, token=REPO_TOKEN)
 
     model_bit32 = AutoModelForSeq2SeqLM.from_pretrained('facebook/bart-large')
