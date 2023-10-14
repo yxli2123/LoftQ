@@ -11,7 +11,7 @@ REPO_TOKEN = "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"
 
 def main():
     model_name = 'LoftQ/bart-large-bit4-iter0-rank64'
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=HF_TOKEN)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, token=REPO_TOKEN)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
     qmodel = AutoModelForSeq2SeqLM.from_pretrained(
             model_name,
@@ -60,7 +60,7 @@ def main():
 
     print(logit_fp)
     print(logit_q)
-    print(logit_q)
+    print(logit_qq)
 
     kl_div_1 = torch.nn.functional.kl_div(logit_fp, logit_q)
     kl_div_2 = torch.nn.functional.kl_div(logit_q, logit_qq)
