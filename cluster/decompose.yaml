@@ -1,0 +1,104 @@
+description: decompose_upload
+
+target:
+  service: aml
+  # name: tscience-a100-80g-eastus
+  name: A100-80G-PCIE-westus3
+  # name: V10032G
+  # name: A100EastUS
+  # name: openai-A10080G
+  # name: A10080G
+  # name: gpu-v100-32g
+  # name: gpu-a100-80g
+
+
+environment:
+  image: pytorch/pytorch:2.0.1-cuda11.7-cudnn8-devel
+  image_setup:
+    - apt-get -y update
+    - apt-get -y install wget
+    - apt-get -y install git
+    - apt-get -y install git-lfs
+  setup:
+    - pip install transformers==4.31
+    - pip install accelerate==0.23
+    - pip install git+https://github.com/huggingface/peft
+    - pip install evaluate scikit-learn scipy typing_extensions einops
+    - pip install datasets sentencepiece setuptools rouge-score nltk openai
+    - pip install tensorboard tensorboardX
+#    - pip install bitsandbytes
+
+storage:
+  output:
+    storage_account_name: tsinterns
+    container_name: t-qingru
+    mount_dir: /mnt/t-qingru
+
+code:
+  local_dir: ../
+
+jobs:
+- name: decompose_bart-large
+  sku: 1xG4
+  process_count_per_node: 1
+  submit_args:
+    container_args:
+      cpus: 32
+  command:
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 4 --reduced_rank 32 --num_iter 1
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 4 --reduced_rank 16 --num_iter 1
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 4 --reduced_rank 8 --num_iter 1
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 2 --reduced_rank 32 --num_iter 1
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 2 --reduced_rank 16 --num_iter 1
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 2 --reduced_rank 8 --num_iter 1
+
+- name: decompose_llama2-7b
+  sku: 1xG4
+  process_count_per_node: 1
+  submit_args:
+    container_args:
+      cpus: 32
+  command:
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 4 --reduced_rank 64 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 3 --reduced_rank 64 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.5 --reduced_rank 64 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.25 --reduced_rank 64 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2 --reduced_rank 64 --num_iter 5
+
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 4 --reduced_rank 32 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 3 --reduced_rank 32 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.5 --reduced_rank 32 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.25 --reduced_rank 32 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2 --reduced_rank 32 --num_iter 5
+
+- name: decompose_llama2-13b
+  sku: 1xG4
+  process_count_per_node: 1
+  submit_args:
+    container_args:
+      cpus: 32
+  command:
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 4 --reduced_rank 64 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 3 --reduced_rank 64 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.5 --reduced_rank 64 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.25 --reduced_rank 64 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2 --reduced_rank 64 --num_iter 5
+
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 4 --reduced_rank 32 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 3 --reduced_rank 32 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.5 --reduced_rank 32 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.25 --reduced_rank 32 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2 --reduced_rank 32 --num_iter 5
+
+- name: decompose_llama2-70b
+  sku: 1xG4
+  process_count_per_node: 1
+  submit_args:
+    container_args:
+      cpus: 32
+  command:
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 4 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 3 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.5 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.25 --reduced_rank 64 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2 --reduced_rank 64 --num_iter 5
