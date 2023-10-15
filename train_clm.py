@@ -485,6 +485,8 @@ def main():
                 trust_remote_code=model_args.trust_remote_code,
                 torch_dtype=torch_dtype,
                 low_cpu_mem_usage=model_args.low_cpu_mem_usage,
+                device_map="auto",
+                load_in_4bit=True,
                 quantization_config=BitsAndBytesConfig(
                     load_in_4bit=True,
                     llm_int8_has_fp16_weight=False,
