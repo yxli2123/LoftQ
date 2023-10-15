@@ -38,46 +38,17 @@ code:
   local_dir: ../
 
 jobs:
-- name: wikitext_llama2_7b_bit16
-  sku: 1xG4
-  process_count_per_node: 1
-  submit_args:
-    container_args:
-      cpus: 32
-  command:
-    - accelerate launch train_clm.py --num_bits 16 --num_iter 0 --learning_rate 2e-4 --reduced_rank 64 --seed 202 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_zoo --output_dir /mnt/t-qingru/exp_results_c_more/ --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --model_name_or_path meta-llama/Llama-2-13b-hf --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
-    - accelerate launch train_clm.py --num_bits 16 --num_iter 0 --learning_rate 2e-4 --reduced_rank 64 --seed 303 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_zoo --output_dir /mnt/t-qingru/exp_results_c_more/ --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --model_name_or_path meta-llama/Llama-2-13b-hf --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
-    - accelerate launch train_clm.py --num_bits 16 --num_iter 0 --learning_rate 2e-4 --reduced_rank 128 --seed 202 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_zoo --output_dir /mnt/t-qingru/exp_results_c_more/ --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --model_name_or_path meta-llama/Llama-2-13b-hf --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
-    - accelerate launch train_clm.py --num_bits 16 --num_iter 0 --learning_rate 2e-4 --reduced_rank 128 --seed 303 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_zoo --output_dir /mnt/t-qingru/exp_results_c_more/ --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --model_name_or_path meta-llama/Llama-2-13b-hf --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
 
-- name: wikitext_llama2_13b_iter0
+- name: wikitext_llama2_7b
   sku: 1xG4
   process_count_per_node: 1
   submit_args:
     container_args:
       cpus: 32
   command:
-    - accelerate launch train_clm.py --num_bits 4 --num_iter 0 --learning_rate 5e-6 --reduced_rank 64 --seed 202 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_zoo --output_dir /mnt/t-qingru/exp_results_c_more/ --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --model_name_or_path meta-llama/Llama-2-13b-hf --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
-    - accelerate launch train_clm.py --num_bits 4 --num_iter 0 --learning_rate 5e-6 --reduced_rank 128 --seed 101 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_zoo --output_dir /mnt/t-qingru/exp_results_c_more/ --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --model_name_or_path meta-llama/Llama-2-13b-hf --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
-    - accelerate launch train_clm.py --num_bits 4 --num_iter 0 --learning_rate 5e-6 --reduced_rank 128 --seed 202 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_zoo --output_dir /mnt/t-qingru/exp_results_c_more/ --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --model_name_or_path meta-llama/Llama-2-13b-hf --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
+    - accelerate launch train_clm.py --fake_quantization --model_name_or_path LoftQ/Llama-2-7b-hf-bit4-rank64 --output_dir /mnt/t-qingzhang/exp_results/wikitext-2/bit4-rank64_eval --dataset_name wikitext --dataset_config wikitext-2-raw-v1 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 4 --gradient_accumulation_steps 8 --do_eval --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
+    - accelerate launch train_clm.py --model_name_or_path LoftQ/Llama-2-7b-hf-bit4-rank64 --output_dir /mnt/t-qingzhang/exp_results/wikitext-2/bit4-rank64_eval --dataset_name wikitext --dataset_config wikitext-2-raw-v1 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 4 --gradient_accumulation_steps 8 --do_eval --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
 
-- name: wikitext_llama2_13b_iter1
-  sku: 1xG4
-  process_count_per_node: 1
-  submit_args:
-    container_args:
-      cpus: 32
-  command:
-    - accelerate launch train_clm.py --num_bits 4 --num_iter 1 --learning_rate 2e-4 --reduced_rank 128 --seed 101 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_zoo --output_dir /mnt/t-qingru/exp_results_c_more/ --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --model_name_or_path meta-llama/Llama-2-13b-hf --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
-    - accelerate launch train_clm.py --num_bits 2 --num_iter 1 --learning_rate 2e-4 --reduced_rank 64 --seed 101 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_zoo --output_dir /mnt/t-qingru/exp_results_c_more/ --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --model_name_or_path meta-llama/Llama-2-13b-hf --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
-
-- name: wikitext_llama2_13b_iter5
-  sku: 1xG4
-  process_count_per_node: 1
-  submit_args:
-    container_args:
-      cpus: 32
-  command:
-    - accelerate launch train_clm.py --num_bits 4 --num_iter 5 --learning_rate 2e-4 --reduced_rank 128 --seed 101 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_zoo --output_dir /mnt/t-qingru/exp_results_c_more/ --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --model_name_or_path meta-llama/Llama-2-13b-hf --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
-    - accelerate launch train_clm.py --num_bits 2 --num_iter 5 --learning_rate 2e-4 --reduced_rank 64 --seed 101 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_zoo --output_dir /mnt/t-qingru/exp_results_c_more/ --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --model_name_or_path meta-llama/Llama-2-13b-hf --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
+    - accelerate launch train_clm.py --fake_quantization --model_name_or_path LoftQ/Llama-2-7b-hf-bit4-rank64 --output_dir /mnt/t-qingzhang/exp_results/wikitext-2/bit4-rank64_ft --learning_rate 1e-4  --seed 202 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
+    - accelerate launch train_clm.py --model_name_or_path LoftQ/Llama-2-7b-hf-bit4-rank64 --output_dir /mnt/t-qingzhang/exp_results/wikitext-2/bit4-rank64_ft --learning_rate 1e-4  --seed 202 --dataset_name wikitext --dataset_config wikitext-2-raw-v1 --num_train_epochs 2 --per_device_train_batch_size 1 --per_device_eval_batch_size 1 --gradient_accumulation_steps 8 --do_train --do_eval --logging_steps 50 --save_steps 1000000 --evaluation_strategy epoch --report_to tensorboard --overwrite_output_dir --block_size 512
 
