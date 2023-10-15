@@ -484,7 +484,7 @@ def main():
                 token=model_args.token,
                 trust_remote_code=model_args.trust_remote_code,
                 torch_dtype=torch_dtype,
-                low_cpu_mem_usage=model_args.low_cpu_mem_usage,
+                low_cpu_mem_usage=True,
                 device_map="auto",
                 load_in_4bit=True,
                 quantization_config=BitsAndBytesConfig(
