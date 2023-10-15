@@ -64,7 +64,7 @@ def main(args):
                                  )
     elif 'deberta' in args.model_name.lower():
         model = AutoModelForSequenceClassification.from_pretrained(args.model_name)
-        target_modules = ['query_proj', 'key_proj', 'value_proj', 'dense', 'embeddings']
+        target_modules = ['query_proj', 'key_proj', 'value_proj', 'dense']  # embeddings not supported by peft
         block_name = ['pooler', 'classifier', 'LayerNorm', 'lora']
         peft_config = LoraConfig(task_type=TaskType.SEQ_CLS,
                                  inference_mode=False,
