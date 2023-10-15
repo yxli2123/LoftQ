@@ -31,74 +31,96 @@ environment:
 storage:
   output:
     storage_account_name: tsinterns
-    container_name: t-qingru
-    mount_dir: /mnt/t-qingru
+    container_name: t-qingzhang
+    mount_dir: /mnt/t-qingzhang
 
 code:
   local_dir: ../
 
 jobs:
-#- name: decompose_bart-large
-#  sku: 1xG4
-#  process_count_per_node: 1
-#  submit_args:
-#    container_args:
-#      cpus: 32
-#  command:
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 4 --reduced_rank 32 --num_iter 1
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 4 --reduced_rank 16 --num_iter 1
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 4 --reduced_rank 8 --num_iter 1
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 2 --reduced_rank 32 --num_iter 1
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 2 --reduced_rank 16 --num_iter 1
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name facebook/bart-large --num_bit 2 --reduced_rank 8 --num_iter 1
-#
-#- name: decompose_llama2-7b
-#  sku: 1xG4
-#  process_count_per_node: 1
-#  submit_args:
-#    container_args:
-#      cpus: 32
-#  command:
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 4 --reduced_rank 64 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 3 --reduced_rank 64 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.5 --reduced_rank 64 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.25 --reduced_rank 64 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2 --reduced_rank 64 --num_iter 5
-#
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 4 --reduced_rank 32 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 3 --reduced_rank 32 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.5 --reduced_rank 32 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.25 --reduced_rank 32 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2 --reduced_rank 32 --num_iter 5
-#
-#- name: decompose_llama2-13b
-#  sku: 1xG4
-#  process_count_per_node: 1
-#  submit_args:
-#    container_args:
-#      cpus: 32
-#  command:
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 4 --reduced_rank 64 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 3 --reduced_rank 64 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.5 --reduced_rank 64 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.25 --reduced_rank 64 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2 --reduced_rank 64 --num_iter 5
-#
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 4 --reduced_rank 32 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 3 --reduced_rank 32 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.5 --reduced_rank 32 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.25 --reduced_rank 32 --num_iter 5
-#    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2 --reduced_rank 32 --num_iter 5
-
-- name: decompose_llama2-70b
+- name: decompose_deberta-v3-base
   sku: 1xG4
   process_count_per_node: 1
   submit_args:
     container_args:
       cpus: 32
   command:
-    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-70b-hf --num_bit 4 --reduced_rank 64 --num_iter 5
-    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-70b-hf --num_bit 2 --reduced_rank 64 --num_iter 5
-    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 3 --reduced_rank 64 --num_iter 5
-    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.5 --reduced_rank 64 --num_iter 5
-    - python decompose.py --path_to_model_zoo /mnt/t-qingru/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.25 --reduced_rank 64 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name microsoft/deberta-v3-base --num_bit 4 --reduced_rank 32 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name microsoft/deberta-v3-base --num_bit 3 --reduced_rank 32 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name microsoft/deberta-v3-base --num_bit 2 --reduced_rank 32 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name microsoft/deberta-v3-base --num_bit 4 --reduced_rank 16 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name microsoft/deberta-v3-base --num_bit 3 --reduced_rank 16 --num_iter 5
+    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name microsoft/deberta-v3-base --num_bit 2 --reduced_rank 16 --num_iter 5
+
+#- name: decompose_llama2-7b-rank64
+#  sku: 1xG4
+#  process_count_per_node: 1
+#  submit_args:
+#    container_args:
+#      cpus: 32
+#  command:
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 4 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 3 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.5 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.25 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2 --reduced_rank 64 --num_iter 5
+#
+#- name: decompose_llama2-7b-rank32
+#  sku: 1xG4
+#  process_count_per_node: 1
+#  submit_args:
+#    container_args:
+#      cpus: 32
+#  command:
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 4 --reduced_rank 32 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 3 --reduced_rank 32 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.5 --reduced_rank 32 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2.25 --reduced_rank 32 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-7b-hf --num_bit 2 --reduced_rank 32 --num_iter 5
+#
+#- name: decompose_llama2-13b-rank64
+#  sku: 1xG4
+#  process_count_per_node: 1
+#  submit_args:
+#    container_args:
+#      cpus: 32
+#  command:
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 4 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 3 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.5 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.25 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2 --reduced_rank 64 --num_iter 5
+#
+#- name: decompose_llama2-13b-rank32
+#  sku: 1xG4
+#  process_count_per_node: 1
+#  submit_args:
+#    container_args:
+#      cpus: 32
+#  command:
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 4 --reduced_rank 32 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 3 --reduced_rank 32 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.5 --reduced_rank 32 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.25 --reduced_rank 32 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2 --reduced_rank 32 --num_iter 5
+#
+#- name: decompose_llama2-70b-bit24
+#  sku: 1xG4
+#  process_count_per_node: 1
+#  submit_args:
+#    container_args:
+#      cpus: 32
+#  command:
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-70b-hf --num_bit 4 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-70b-hf --num_bit 2 --reduced_rank 64 --num_iter 5
+#
+#- name: decompose_llama2-70b-mixed_bit
+#  sku: 1xG4
+#  process_count_per_node: 1
+#  submit_args:
+#    container_args:
+#      cpus: 32
+#  command:
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 3 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.5 --reduced_rank 64 --num_iter 5
+#    - python decompose.py --path_to_model_zoo /mnt/t-qingzhang/yixiaoli_model_hf/ --model_name meta-llama/Llama-2-13b-hf --num_bit 2.25 --reduced_rank 64 --num_iter 5
