@@ -501,7 +501,7 @@ def main():
     ##########################
     #       Peft Model       #
     ##########################
-    if model_args.num_bits < 16:
+    if True:
         model = PeftModel.from_pretrained(model,
                                           model_args.adapter_name_or_path,
                                           is_trainable=True if training_args.do_train else False)
