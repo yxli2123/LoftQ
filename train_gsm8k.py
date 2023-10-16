@@ -54,12 +54,12 @@ from transformers import (
     SchedulerType,
     default_data_collator,
     get_scheduler,
+    BitsAndBytesConfig,
 )
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
 from peft import PeftModel, LoraConfig, get_peft_model, TaskType
-
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.32.0.dev0")
@@ -280,28 +280,21 @@ def parse_args():
     #        Exp Args        #
     ##########################
     parser.add_argument(
-        "--num_bits",
-        type=int,
-        default=4,
-        help="quantization bit",
-    )
-    parser.add_argument(
-        "--num_iter",
-        type=int,
-        default=0,
-        help="The number of iterations during the alternative optimization. 0: native lora",
-    )
-    parser.add_argument(
-        "--reduced_rank",
-        type=int,
-        default=8,
-        help="The rank of lora",
-    )
-    parser.add_argument(
-        "--path_to_model_zoo",
+        "--adapter_name_or_path",
         type=str,
-        default='/mnt/t-qingru/yixiaoli_model_zoo',
-        help="path to model zoo",
+        default=None,
+        help=(
+            "The LoRA adapter checkpoint. Set None if you want to fine-tune from LoftQ."
+            "Specify a path if you want to evaluate."
+        ),
+    )
+    parser.add_argument(
+        "--fake_quantization",
+        action="store_true",
+        help=(
+            "True: load in fp16 instead of 4-bit or 2-bit. Parallel training requires fake quantization"
+            "False: load in NF4 by bitsandbytes. NF2 not implemented. Use NF4 to replace NF2"
+        ),
     )
 
     args = parser.parse_args()
@@ -333,25 +326,6 @@ def main():
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     # If we're using tracking, we also need to initialize it here and it will by default pick up all supported trackers
     # in the environment
-
-    ##########################
-    #       Auto Path        #
-    ##########################
-    args.output_dir = os.path.join(args.output_dir,
-                                   args.dataset_name,
-                                   args.model_name_or_path.split('/')[-1],
-                                   f"bit{args.num_bits}",
-                                   f"iter{args.num_iter}",
-                                   f"rank{args.reduced_rank}",
-                                   f"lr{args.learning_rate}",
-                                   f"seed{args.seed}")
-    if args.num_bits <= 8:
-        args.model_name_or_path = os.path.join(args.path_to_model_zoo,
-                                           args.model_name_or_path.split('/')[-1],
-                                           f"bit{args.num_bits}",
-                                           f"iter{args.num_iter}",
-                                           f"rank{args.reduced_rank}")
-
     accelerator_log_kwargs = {}
 
     if args.with_tracking:
@@ -460,15 +434,11 @@ def main():
         config = AutoConfig.from_pretrained(
             args.config_name,
             trust_remote_code=args.trust_remote_code,
-            use_auth_token=HF_TOKEN,
-
         )
     elif args.model_name_or_path:
         config = AutoConfig.from_pretrained(
             args.model_name_or_path,
             trust_remote_code=args.trust_remote_code,
-            use_auth_token=HF_TOKEN,
-
         )
     else:
         config = CONFIG_MAPPING[args.model_type]()
@@ -476,14 +446,10 @@ def main():
 
     if args.tokenizer_name:
         tokenizer = AutoTokenizer.from_pretrained(
-            args.tokenizer_name, use_fast=not args.use_slow_tokenizer, trust_remote_code=args.trust_remote_code,
-            use_auth_token=HF_TOKEN,
-
-        )
+            args.tokenizer_name, use_fast=not args.use_slow_tokenizer, trust_remote_code=args.trust_remote_code)
     elif args.model_name_or_path:
         tokenizer = AutoTokenizer.from_pretrained(
             args.model_name_or_path, use_fast=not args.use_slow_tokenizer, trust_remote_code=args.trust_remote_code,
-            use_auth_token=HF_TOKEN,
 
         )
     else:
@@ -500,14 +466,28 @@ def main():
     tokenizer.truncation_side = 'left'
 
     if args.model_name_or_path:
-        model = AutoModelForCausalLM.from_pretrained(
-            args.model_name_or_path,
-            from_tf=bool(".ckpt" in args.model_name_or_path),
-            config=config,
-            low_cpu_mem_usage=args.low_cpu_mem_usage,
-            trust_remote_code=args.trust_remote_code,
-            use_auth_token=HF_TOKEN,
-        )
+        if args.fake_quantization:
+            model = AutoModelForCausalLM.from_pretrained(
+                args.model_name_or_path,
+                from_tf=bool(".ckpt" in args.model_name_or_path),
+                config=config,
+                trust_remote_code=args.trust_remote_code,
+            )
+        else:
+            model = AutoModelForCausalLM.from_pretrained(
+                args.model_name_or_path,
+                from_tf=bool(".ckpt" in args.model_name_or_path),
+                config=config,
+                low_cpu_mem_usage=True,
+                load_in_4bit=True,
+                quantization_config=BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    llm_int8_has_fp16_weight=False,
+                    bnb_4bit_compute_dtype=torch.float16,
+                    bnb_4bit_use_double_quant=False,
+                    bnb_4bit_quant_type='nf4',
+                ),
+            )
     else:
         logger.info("Training new model from scratch")
         model = AutoModelForCausalLM.from_config(config, trust_remote_code=args.trust_remote_code)
@@ -515,21 +495,11 @@ def main():
     ##########################
     #       Peft Model       #
     ##########################
-    if args.num_bits <= 8:
-        model = PeftModel.from_pretrained(model,
-                                          args.model_name_or_path,
-                                          is_trainable=True)
-    else:
-        target_modules = ['q_proj', 'k_proj', 'v_proj', 'o_proj', 'up_proj', 'down_proj', 'gate_proj']
-        peft_config = LoraConfig(task_type=TaskType.CAUSAL_LM,
-                                 inference_mode=False,
-                                 r=args.reduced_rank,
-                                 lora_alpha=args.reduced_rank,
-                                 lora_dropout=0.1,
-                                 target_modules=target_modules
-                                 )
-        model = get_peft_model(model, peft_config)
-
+    if args.adapter_name_or_path is None:
+        args.adapter_name_or_path = args.model_name_or_path
+    model = PeftModel.from_pretrained(model,
+                                      args.adapter_name_or_path,
+                                      is_trainable=True)
     model.print_trainable_parameters()
     for n, p in model.named_parameters():
         accelerator.print(n, p.size(), p.device, p.requires_grad)
@@ -627,7 +597,6 @@ def main():
         logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
     for index in random.sample(range(len(eval_dataset)), 2):
         logger.info(f"Sample {index} of the validation set: {eval_dataset[index]}.")
-
 
     # DataLoaders creation:
     train_dataloader = DataLoader(
@@ -742,10 +711,6 @@ def main():
     # update the progress_bar if load from checkpoint
     progress_bar.update(completed_steps)
 
-    # TODO: remove this
-    with accelerator.main_process_first():
-        os.system("nvidia-smi")
-
     for epoch in range(starting_epoch, args.num_train_epochs):
         model.train()
         if args.with_tracking:
@@ -763,7 +728,7 @@ def main():
                 if args.with_tracking:
                     total_loss += loss.detach().float()
                 accelerator.backward(loss)
-                accelerator.print(f"loss: {loss}")
+                accelerator.print(f"Epoch: {epoch} | Step: {step} | Loss: {loss}")
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
@@ -775,7 +740,7 @@ def main():
 
             if isinstance(checkpointing_steps, int):
                 if completed_steps % checkpointing_steps == 0:
-                    output_dir = f"step_{completed_steps }"
+                    output_dir = f"step_{completed_steps}"
                     if args.output_dir is not None:
                         output_dir = os.path.join(args.output_dir, output_dir)
                     accelerator.save_state(output_dir)
@@ -869,9 +834,6 @@ def main():
             if args.push_to_hub:
                 repo.push_to_hub(commit_message="End of training", auto_lfs_prune=True)
 
-            # with open(os.path.join(args.output_dir, "all_results.json"), "w") as f:
-            #     json.dump({"accuracy": accuracy}, f)
-
 
 def extract_answer_number(sentence: str) -> float:
     sentence = sentence.replace(',', '')
@@ -904,6 +866,7 @@ def compute_accuracy(pred: list, gold: list):
             acc += 1
 
     return acc / len(pred)
+
 
 if __name__ == "__main__":
     main()

@@ -57,14 +57,12 @@ from transformers.utils.versions import require_version
 
 from peft import PeftModel, LoraConfig, TaskType, get_peft_model
 
-
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.32.0.dev0")
 
 require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/language-modeling/requirements.txt")
 
 logger = logging.getLogger(__name__)
-
 
 MODEL_CONFIG_CLASSES = list(MODEL_FOR_CAUSAL_LM_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
@@ -163,7 +161,7 @@ class ModelArguments:
         default=False,
         metadata={
             "help": (
-                "True: load in fp16 instead of 4-bit or 2-bit. This is faster but consumes much more GPU memory"
+                "True: load in fp16 instead of 4-bit or 2-bit. Parallel training requires fake quantization"
                 "False: load in NF4 by bitsandbytes. NF2 not implemented. Use NF4 to replace NF2"
             )
         },
@@ -455,7 +453,6 @@ def main():
     ##########################
     #    Quantized Model     #
     ##########################
-
     if model_args.model_name_or_path:
         torch_dtype = (
             model_args.torch_dtype
@@ -485,7 +482,6 @@ def main():
                 trust_remote_code=model_args.trust_remote_code,
                 torch_dtype=torch_dtype,
                 low_cpu_mem_usage=True,
-                # device_map="balanced",
                 load_in_4bit=True,
                 quantization_config=BitsAndBytesConfig(
                     load_in_4bit=True,
@@ -494,30 +490,19 @@ def main():
                     bnb_4bit_use_double_quant=False,
                     bnb_4bit_quant_type='nf4',
                 ),
-        )
+            )
     else:
         model = AutoModelForCausalLM.from_config(config, trust_remote_code=model_args.trust_remote_code)
         n_params = sum({p.data_ptr(): p.numel() for p in model.parameters()}.values())
-        logger.info(f"Training new model from scratch - Total size={n_params/2**20:.2f}M params")
+        logger.info(f"Training new model from scratch - Total size={n_params / 2 ** 20:.2f}M params")
 
     ##########################
     #       Peft Model       #
     ##########################
-    if True:
-        model = PeftModel.from_pretrained(model,
-                                          model_args.adapter_name_or_path,
-                                          is_trainable=True if training_args.do_train else False)
-    else:
-        target_modules = ['q_proj', 'k_proj', 'v_proj', 'o_proj', 'up_proj', 'down_proj', 'gate_proj']
-        peft_config = LoraConfig(task_type=TaskType.CAUSAL_LM,
-                                 inference_mode=False if training_args.do_train else True,
-                                 r=model_args.reduced_rank,
-                                 lora_alpha=16,
-                                 lora_dropout=0.1,
-                                 target_modules=target_modules
-                                 )
-        model = get_peft_model(model, peft_config)
 
+    model = PeftModel.from_pretrained(model,
+                                      model_args.adapter_name_or_path,
+                                      is_trainable=True if training_args.do_train else False)
     model.print_trainable_parameters()
     model = model.to('cuda')
     for n, p in model.named_parameters():
@@ -595,7 +580,7 @@ def main():
         total_length = (total_length // block_size) * block_size
         # Split by chunks of max_len.
         result = {
-            k: [t[i : i + block_size] for i in range(0, total_length, block_size)]
+            k: [t[i: i + block_size] for i in range(0, total_length, block_size)]
             for k, t in concatenated_examples.items()
         }
         result["labels"] = result["input_ids"].copy()
