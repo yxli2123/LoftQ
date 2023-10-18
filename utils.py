@@ -238,8 +238,8 @@ def replace_module(
     """
     :param       module: have to inherit nn.Module
     :param      prename: previous name, used to iteratively obtain parameters name
-    :param   allow_name: allowed nn.Linear to decompose
-    :param   block_name: blocked nn.Linear to decompose
+    :param   allow_name: allowed nn.Linear to quantize
+    :param   block_name: blocked nn.Linear to quantize
     :param reduced_rank: low-rank rank
     :param     num_bits: low-precision bits. 2,4,8 as expected, float number between (2, 4) enables mixed precision
     :param     num_iter: alternating steps
@@ -345,10 +345,6 @@ def loftq_init(weight, num_bits, reduced_rank, num_iter, method='normal', block_
     device = weight.device
 
     quantizer = NFQuantizer(num_bits=num_bits, device=device, method=method, block_size=block_size)
-    if method == 'normal':
-        block_size = 64
-    else:
-        block_size = 1024
     res = weight.clone()
     for i in range(num_iter):
         # Quantization
