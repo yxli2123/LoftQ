@@ -515,14 +515,15 @@ def main():
                 empty_init=True,
                 quant_method='normal',
             )
-        model = load_checkpoint_and_dispatch(model, model_args.model_name_or_path, device_map="auto")
+        model = load_checkpoint_and_dispatch(model, model_args.model_name_or_path)
 
     ##########################
     #       Peft Model       #
     ##########################
-    model = PeftModel.from_pretrained(model,
-                                      model_args.adapter_name_or_path,
-                                      is_trainable=True if training_args.do_train else False)
+    if model_args.use_bitsandbytes or model_args.fake_quantization:
+        model = PeftModel.from_pretrained(model,
+                                          model_args.adapter_name_or_path,
+                                          is_trainable=True if training_args.do_train else False)
     model.print_trainable_parameters()
     model = model.to('cuda')
     for n, p in model.named_parameters():

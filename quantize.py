@@ -25,7 +25,7 @@ def main(args):
                             f"iter{args.num_iter}",
                             f"rank{args.reduced_rank}",
                             'fake' if args.fake_quantization else 'real')
-
+    ckpt_dir += '' if args.fake_quantization else '-q'
     args.num_bits = int(args.num_bits) if args.num_bits - int(args.num_bits) == 0 else args.num_bits
     repo_name = "LoftQ/" + args.model_name.split('/')[-1] + f"-bit{args.num_bits}" + f"-rank{args.reduced_rank}"
     repo_name += '' if args.fake_quantization else '-q'
@@ -84,7 +84,6 @@ def main(args):
         model.print_trainable_parameters()
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         model = model.to(device)
-
         utils.replace_module(
             model,
             allow_name=target_modules,
@@ -99,7 +98,6 @@ def main(args):
             quant_method=args.method,
             fake_quant=args.fake_quantization,
         )
-
         model.base_model.save_pretrained(ckpt_dir)
     else:
         utils.replace_module(
@@ -129,7 +127,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str, default='normal', choices=['normal', 'uniform'])
     parser.add_argument('--path_to_model_zoo', type=str, default='./yixiaoli_model_zoo_hf/')
-    parser.add_argument('--model_name', type=str, default='microsoft/deberta-v3-base',
+    parser.add_argument('--model_name', type=str, default='meta-llama/Llama-2-7b-hf',
                         help='tiiuae/falcon-7b, meta-llama/Llama-2-7b-hf, meta-llama/Llama-2-7b-chat-hf, facebook/bart-large')
     parser.add_argument('--num_bits', type=float, default=4)
     parser.add_argument('--reduced_rank', type=int, default=64)
