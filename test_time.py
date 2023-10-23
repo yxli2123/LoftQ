@@ -723,13 +723,13 @@ def main():
     ans_pred_list = []
     ans_gold_list = []
     prof = torch.profiler.profile(
-        schedule=torch.profiler.schedule(wait=1, warmup=1, active=5, repeat=5),
+        schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=1),
         on_trace_ready=torch.profiler.tensorboard_trace_handler('./log/llama_gsm8k'),
         record_shapes=True,
         with_stack=True)
     prof.start()
     for step, batch in enumerate(eval_dataloader):
-        if step > (1+1+5)*5:
+        if step > (1+1+2)*1:
             break
         with torch.no_grad():
             gen_kwargs["input_ids"] = batch["input_ids"]
