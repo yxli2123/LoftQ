@@ -722,15 +722,17 @@ def main():
     }
     ans_pred_list = []
     ans_gold_list = []
+    prof = torch.profiler.profile(
+        schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=1),
+        on_trace_ready=torch.profiler.tensorboard_trace_handler('./log/llama_gsm8k'),
+        record_shapes=True,
+        with_stack=True)
+    prof.start()
     for step, batch in enumerate(eval_dataloader):
         with torch.no_grad():
             gen_kwargs["input_ids"] = batch["input_ids"]
             gen_kwargs["attention_mask"] = batch["attention_mask"]
-            with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
-                with record_function("model_inference"):
-                    generated_tokens = accelerator.unwrap_model(model).generate(**gen_kwargs)
-
-            print(prof.key_averages().table(sort_by="cuda_time_total"))
+            generated_tokens = accelerator.unwrap_model(model).generate(**gen_kwargs)
 
         pred_tokens = generated_tokens[:, args.max_source_length:]
         pred_tokens = accelerator.pad_across_processes(pred_tokens, dim=1, pad_index=tokenizer.pad_token_id)
@@ -753,6 +755,7 @@ def main():
         accelerator.print(decoded_pred)
         ans_pred_list += [extract_answer_number(sentence_pred) for sentence_pred in decoded_pred]
         ans_gold_list += [extract_answer_number(sentence_gold) for sentence_gold in decoded_gold]
+    prof.stop()
 
     accelerator.print(ans_pred_list)
     accelerator.print(ans_gold_list)

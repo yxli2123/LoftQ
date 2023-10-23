@@ -56,6 +56,9 @@ from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
 from peft import PeftModel, LoraConfig, TaskType, get_peft_model
+from accelerate import init_empty_weights, load_checkpoint_and_dispatch
+
+import utils
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.32.0.dev0")
@@ -453,53 +456,70 @@ def main():
     ##########################
     #    Quantized Model     #
     ##########################
-    if model_args.model_name_or_path:
-        torch_dtype = (
-            model_args.torch_dtype
-            if model_args.torch_dtype in ["auto", None]
-            else getattr(torch, model_args.torch_dtype)
+
+    torch_dtype = (
+        model_args.torch_dtype
+        if model_args.torch_dtype in ["auto", None]
+        else getattr(torch, model_args.torch_dtype)
+    )
+    if model_args.fake_quantization:
+        model = AutoModelForCausalLM.from_pretrained(
+            model_args.model_name_or_path,
+            from_tf=bool(".ckpt" in model_args.model_name_or_path),
+            config=config,
+            cache_dir=model_args.cache_dir,
+            revision=model_args.model_revision,
+            token=model_args.token,
+            trust_remote_code=model_args.trust_remote_code,
+            torch_dtype=torch_dtype,
+            low_cpu_mem_usage=model_args.low_cpu_mem_usage,
         )
-        if model_args.fake_quantization:
-            model = AutoModelForCausalLM.from_pretrained(
-                model_args.model_name_or_path,
-                from_tf=bool(".ckpt" in model_args.model_name_or_path),
-                config=config,
-                cache_dir=model_args.cache_dir,
-                revision=model_args.model_revision,
-                token=model_args.token,
-                trust_remote_code=model_args.trust_remote_code,
-                torch_dtype=torch_dtype,
-                low_cpu_mem_usage=model_args.low_cpu_mem_usage,
-            )
-        else:
-            model = AutoModelForCausalLM.from_pretrained(
-                model_args.model_name_or_path,
-                from_tf=bool(".ckpt" in model_args.model_name_or_path),
-                config=config,
-                cache_dir=model_args.cache_dir,
-                revision=model_args.model_revision,
-                token=model_args.token,
-                trust_remote_code=model_args.trust_remote_code,
-                torch_dtype=torch_dtype,
-                low_cpu_mem_usage=True,
+    elif model_args.use_bitsandbytes:
+        model = AutoModelForCausalLM.from_pretrained(
+            model_args.model_name_or_path,
+            from_tf=bool(".ckpt" in model_args.model_name_or_path),
+            config=config,
+            cache_dir=model_args.cache_dir,
+            revision=model_args.model_revision,
+            token=model_args.token,
+            trust_remote_code=model_args.trust_remote_code,
+            torch_dtype=torch_dtype,
+            low_cpu_mem_usage=True,
+            load_in_4bit=True,
+            quantization_config=BitsAndBytesConfig(
                 load_in_4bit=True,
-                quantization_config=BitsAndBytesConfig(
-                    load_in_4bit=True,
-                    llm_int8_has_fp16_weight=False,
-                    bnb_4bit_compute_dtype=torch.float16,
-                    bnb_4bit_use_double_quant=False,
-                    bnb_4bit_quant_type='nf4',
-                ),
-            )
+                llm_int8_has_fp16_weight=False,
+                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_use_double_quant=False,
+                bnb_4bit_quant_type='nf4',
+            ),
+        )
     else:
-        model = AutoModelForCausalLM.from_config(config, trust_remote_code=model_args.trust_remote_code)
-        n_params = sum({p.data_ptr(): p.numel() for p in model.parameters()}.values())
-        logger.info(f"Training new model from scratch - Total size={n_params / 2 ** 20:.2f}M params")
+        with init_empty_weights():
+            model = AutoModelForCausalLM.from_config(config, trust_remote_code=model_args.trust_remote_code)
+            assert 'llama' in model_args.model_name_or_path.lower(), "Only support LLAMA"
+            num_bits, r = model_args.model_name_or_path.split('-')[-3: -1]
+            num_bits, r = float(num_bits.split('bit')[-1]), int(r.split('rank')[-1])
+            block_name = ['lm_head', 'norm', 'embed_tokens', 'lora']
+            target_modules = ['q_proj', 'k_proj', 'v_proj', 'o_proj', 'up_proj', 'down_proj', 'gate_proj']
+            utils.replace_module(
+                model,
+                allow_name=target_modules,
+                block_name=block_name,
+                prename='model',
+                reduced_rank=r,
+                num_bits=num_bits,
+                num_iter=0,
+                enable_lora=True,
+                num_layers=config.num_hidden_layers,
+                empty_init=True,
+                quant_method='normal',
+            )
+        model = load_checkpoint_and_dispatch(model, model_args.model_name_or_path, device_map="auto")
 
     ##########################
     #       Peft Model       #
     ##########################
-
     model = PeftModel.from_pretrained(model,
                                       model_args.adapter_name_or_path,
                                       is_trainable=True if training_args.do_train else False)

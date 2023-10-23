@@ -23,10 +23,12 @@ def main(args):
                             args.model_name.split('/')[-1],
                             f"bit{args.num_bits}",
                             f"iter{args.num_iter}",
-                            f"rank{args.reduced_rank}")
+                            f"rank{args.reduced_rank}",
+                            'fake' if args.fake_quantization else 'real')
 
     args.num_bits = int(args.num_bits) if args.num_bits - int(args.num_bits) == 0 else args.num_bits
     repo_name = "LoftQ/" + args.model_name.split('/')[-1] + f"-bit{args.num_bits}" + f"-rank{args.reduced_rank}"
+    repo_name += '' if args.fake_quantization else '-q'
     repo_id = create_repo(repo_name, exist_ok=True, token=REPO_TOKEN).repo_id
     repo = Repository(ckpt_dir, clone_from=repo_id, token=REPO_TOKEN)
 
@@ -77,7 +79,7 @@ def main(args):
     else:
         raise NotImplementedError("model not supported")
 
-    if args.fake_quant:
+    if args.fake_quantization:
         model = get_peft_model(model, peft_config)
         model.print_trainable_parameters()
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -95,17 +97,29 @@ def main(args):
             num_layers=config.num_hidden_layers,
             empty_init=False,
             quant_method=args.method,
-            fake_quant=args.fake_quant,
+            fake_quant=args.fake_quantization,
         )
 
         model.base_model.save_pretrained(ckpt_dir)
-        model.save_pretrained(ckpt_dir)
-        tokenizer.save_pretrained(ckpt_dir)
-
-        repo.push_to_hub(commit_message="Upload decomposed weights", auto_lfs_prune=True)
-
     else:
-        pass
+        utils.replace_module(
+            model,
+            allow_name=target_modules,
+            block_name=block_name,
+            prename='model',
+            reduced_rank=args.reduced_rank,
+            num_bits=args.num_bits,
+            num_iter=args.num_iter,
+            enable_lora=True,
+            num_layers=config.num_hidden_layers,
+            empty_init=False,
+            quant_method=args.method,
+            fake_quant=args.fake_quantization,
+        )
+
+    model.save_pretrained(ckpt_dir)
+    tokenizer.save_pretrained(ckpt_dir)
+    repo.push_to_hub(commit_message="Upload decomposed weights", auto_lfs_prune=True)
 
     for name, param in model.named_parameters():
         print(name, param.shape, param.max(), param.min(), param.mean(), param.requires_grad)
@@ -120,7 +134,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_bits', type=float, default=4)
     parser.add_argument('--reduced_rank', type=int, default=64)
     parser.add_argument('--num_iter', type=int, default=0)
-    parser.add_argument('--fake_quant', action='store_true')
+    parser.add_argument('--fake_quantization', action='store_true')
 
     args = parser.parse_args()
 
