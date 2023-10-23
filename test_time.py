@@ -729,6 +729,8 @@ def main():
         with_stack=True)
     prof.start()
     for step, batch in enumerate(eval_dataloader):
+        if step > (1+1+5)*5:
+            break
         with torch.no_grad():
             gen_kwargs["input_ids"] = batch["input_ids"]
             gen_kwargs["attention_mask"] = batch["attention_mask"]
