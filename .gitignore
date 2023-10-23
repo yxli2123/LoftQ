@@ -163,3 +163,5 @@ cython_debug/
 .DS_Store
 
 *model_zoo*
+glue/output
+glue/__pycache__

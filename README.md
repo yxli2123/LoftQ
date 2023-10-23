@@ -37,10 +37,31 @@ Models are fine-tuned through causal language modeling on training sets and are 
 
 *: Using the first 3 sentences in the document as the summary
 
-**DeBERTa-V3-base on GLUE**
+**DeBERTa-V3-base on GLUE using Normal Float Datatype**
+
+| Bit | **Rank**| **MNLI** | **QNLI** | **RTE** | **SST** | **MRPC** | **CoLA** | **QQP** | **STSB** | **SQuAD** | **ANLI** |
+|----------|------------|----------|----------|---------|---------|----------|----------|---------|----------|-----------|----------|
+|         |           | m / mm   | Acc      | Acc     | Acc     | Acc      | Acc      | Mcc     | P/S Corr | EM/F1     | Acc      |
+|    16     |  16   | 90.5/90.6 | 94.0     | 82.0    | 95.3    | 89.5/93.3 | 69.2     | 92.4/89.8 | 91.6/91.1 | 88.5/92.8 | 59.8     |
+| 2        | 16     | **84.7/85.1** | **86.6** | **61.4** | **90.2** | **83.8/88.6** | **37.4** | **90.3/86.9** | **87.1/86.9** | **81.5/88.6** | **47.1** |
+| 2        | 32    | **86.0/86.1** | **89.9** | **61.7** | **92.0** | **83.6/87.2** | **47.5** | **91.0/87.9** | **87.5/87.0** | **82.9/89.8** | **49.0** |
+
+**DeBERTa-V3-base on GLUE using Uniform Quantization Datatype**
+
+| **Bit** | **Rank** | **MNLI** | **QNLI** | **RTE** | **SST** | **MRPC** | **CoLA** | **QQP** | **STSB** | **SQuAD** |
+|----------|------------|----------|----------|---------|---------|----------|----------|---------|----------|-----------|
+|         |           | m / mm   | Acc      | Acc     | Acc     | Acc      | Acc      | Mcc     | P/S Corr | Em/F1     |
+|  16       | 16    | 90.5/90.6 | 94.0     | 82.0    | 95.3    | 89.5/93.3 | 69.2     | 92.4/89.8 | 91.6/91.1 | 88.5/92.8 |
+| 2        | 16     | **87.3/87.1** | **90.6** | **61.1** | **94.0** | **87.0/90.6** | **59.1** | **90.9/88.0** | **87.9/87.6** | **84.4/91.2** |
+| 2        | 32     | **88.0/88.1** | **92.2** | **63.2** | **94.7** | **87.5/91.2** | **60.5** | **91.3/88.3** | **89.5/89.2** | **85.2/91.6** |
+
+
+
 
 ## LoftQ
 We use huggingface 🤗 as our training code scripts. See examples [here](https://github.com/huggingface/transformers/tree/main/examples/pytorch)
+
+We provide the implementation for LoftQ for LLAMA and BART as below. We provide a separate implementation for LoftQ for DeBERTa-V3-base in the [glue](glue) folder because Huggingface peft module doesn't support quantize the embedding, and [bitsandbytes](https://github.com/TimDettmers/bitsandbytes) module currently doesn't DeBERTaV3. Please go to [glue](glue) folder to see more implementation details.
 
 ### Requirements
 We use [bitsandbytes](https://github.com/TimDettmers/bitsandbytes) to implement the quantization. 
@@ -108,8 +129,8 @@ model = AutoModelForCausalLM.from_pretrained(
 
 ### Training Files
 
-* GLUE: 
-* Question Answering: 
+* GLUE: `glue/run_glue.py`
+* Question Answering: `glue/run_qa.py`
 * Summarization: `train_summarization.py`
 * WikiText-2: `train_clm.py`
 * GSM8K: `train_gsm8k.py`
