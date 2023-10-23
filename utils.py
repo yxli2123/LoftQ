@@ -258,7 +258,7 @@ def replace_module(
         block_name = ['pooler', 'classifier', 'LayerNorm', 'embeddings', 'lora']
 
     # mixed precision: first k layers use 4-bit weights and the rest use 2-bit weights
-    bit4_layer = (num_layers * (num_bits - 2)) // 2
+    bit4_layer = int((num_layers * (num_bits - 2)) // 2)
     if num_bits not in [2, 4, 8]:
         print("Warning: Only support decoder-only or encoder-only models. "
               "Apply to encoder-decoder models on your own risk.")
