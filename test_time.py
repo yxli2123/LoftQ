@@ -722,9 +722,10 @@ def main():
     }
     ans_pred_list = []
     ans_gold_list = []
+    profile_path = os.path.join(args.output_dir, "profile_log")
     prof = torch.profiler.profile(
         schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=1),
-        on_trace_ready=torch.profiler.tensorboard_trace_handler('./log/llama_gsm8k'),
+        on_trace_ready=torch.profiler.tensorboard_trace_handler(profile_path),
         record_shapes=True,
         with_stack=True)
     prof.start()
