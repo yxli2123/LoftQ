@@ -366,32 +366,3 @@ def loftq_init(weight, num_bits, reduced_rank, num_iter, method='normal', block_
     lora_A, lora_B = R, L
 
     return dequantized_weight, lora_A, lora_B
-
-
-if __name__ == '__main__':
-    from transformers import AutoModel
-    from peft import LoraConfig, TaskType, get_peft_model, PeftModel
-
-    model = AutoModel.from_pretrained('facebook/bart-large')
-    target_modules = ['q_proj', 'k_proj', 'v_proj', 'fc1', 'fc2', 'out_proj']
-    block_name = ['pooler', 'classifier', 'LayerNorm', 'embeddings', 'lora']
-    peft_config = LoraConfig(task_type=TaskType.SEQ_2_SEQ_LM,
-                             inference_mode=False,
-                             r=16,
-                             lora_alpha=16,
-                             lora_dropout=0.1,
-                             target_modules=target_modules
-                             )
-    print(model)
-    model = get_peft_model(model, peft_config)
-    replace_module(model,
-                   allow_name=target_modules,
-                   block_name=block_name,
-                   empty_init=False,
-                   fake_quant=True,
-                   reduced_rank=16,
-                   num_layers=12,
-                   num_bits=4,
-                   )
-    print(model)
-

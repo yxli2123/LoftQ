@@ -55,7 +55,7 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
-from peft import PeftModel, LoraConfig, TaskType, get_peft_model
+from peft import PeftModel
 from accelerate import init_empty_weights, load_checkpoint_and_dispatch
 
 import utils
@@ -178,6 +178,15 @@ class ModelArguments:
             )
         },
     )
+    use_bitsandbytes: bool = field(
+        default=True,
+        metadata={
+            "help": (
+                "True to use bitsandbytes to load quantized weight. False to use self-implemented quantization."
+            )
+        },
+    )
+
 
     def __post_init__(self):
         if self.config_overrides is not None and (self.config_name is not None or self.model_name_or_path is not None):
