@@ -1,5 +1,5 @@
 transformers==4.31
-git+https://github.com/huggingface/accelerate
+accelerate==0.23
 git+https://github.com/huggingface/peft
 evaluate
 scikit-learn
