@@ -13,8 +13,8 @@ import os
 from peft import LoraConfig, TaskType, get_peft_model, PeftModel
 from huggingface_hub import Repository, create_repo
 
-HF_TOKEN = "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"
-REPO_TOKEN = "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"
+HF_TOKEN = "XXX"
+REPO_TOKEN = "XXX"
 
 
 def main(args):
