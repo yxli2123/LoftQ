@@ -2,7 +2,9 @@
 
 LoftQ helps you fine-tune LLMs with limited GPUs. 🚀 LoftQ finds good enough quantized LoRA initialization: quantized backbone Q and LoRA adapters A and B, given a pre-trained weight W.
 
-This repo implements [LoftQ: LoRA-Fine-Tuning-Aware Quantization](https://arxiv.org/abs/2310.08659).
+This repo implements the paper 🔗: [LoftQ: LoRA-Fine-Tuning-Aware Quantization for Large Language Models](https://arxiv.org/abs/2310.08659).
+
+Our models are available on Huggingface Hub 🤗 [LoftQ]((https://huggingface.co/LoftQ))
 
 ## Quick Start
 
@@ -198,6 +200,16 @@ Models are fine-tuned through causal language modeling on training sets and are 
 | 2        | 16     | **87.3/87.1** | **90.6** | **61.1** | **94.0** | **87.0/90.6** | **59.1** | **90.9/88.0** | **87.9/87.6** | **84.4/91.2** |
 | 2        | 32     | **88.0/88.1** | **92.2** | **63.2** | **94.7** | **87.5/91.2** | **60.5** | **91.3/88.3** | **89.5/89.2** | **85.2/91.6** |
 
+
+## Citation
+```bibtext
+@article{li2023loftq,
+  title={Loftq: Lora-fine-tuning-aware quantization for large language models},
+  author={Li, Yixiao and Yu, Yifan and Liang, Chen and He, Pengcheng and Karampatziakis, Nikos and Chen, Weizhu and Zhao, Tuo},
+  journal={arXiv preprint arXiv:2310.08659},
+  year={2023}
+}
+```
 
 ## Appendix: Off-the-shelf Model List
 | Model Name  | Bits | Ranks |
