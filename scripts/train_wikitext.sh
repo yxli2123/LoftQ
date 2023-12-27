@@ -1,6 +1,5 @@
 # train 4-bit 64-rank llama-2-7b on wikitext-2 using 1 GPU
 python train_clm.py \
---full_precision \
 --model_name_or_path LoftQ/Llama-2-7b-hf-4bit-64rank \
 --output_dir exp_results/wikitext-2/ \
 --learning_rate 3e-4  \
