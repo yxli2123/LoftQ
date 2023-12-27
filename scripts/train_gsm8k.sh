@@ -63,7 +63,7 @@ accelerate launch train_gsm8k.py \
   --full_precision \
   --model_name_or_path meta-llama/Llama-2-7b-hf \
   --token YOUR_HF_TOKEN \
-  --learning_rate 1e-4 \
+  --learning_rate 3e-4 \
   --seed 11 \
   --rank 64 --lora_alpha 16 --lora_init \
   --expt_name gsm8k_llama2_7b_4bit_64rank_fp16 \
