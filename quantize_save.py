@@ -154,7 +154,7 @@ def quantize_and_save():
         task_type=task_type,
         inference_mode=True,
         r=args.rank,
-        lora_alpha=16 if task_type is TaskType.CAUSAL_LM else args.rank,
+        lora_alpha=16 if task_type is TaskType.CAUSAL_LM and args.bits == 4 else args.rank,
         lora_dropout=0.1,
         target_modules=target_modules,
         init_lora_weights="loftq",
@@ -168,13 +168,7 @@ def quantize_and_save():
     # Save LoftQ model
     model_name = args.model_name_or_path.split("/")[-1] + f"-{args.bits}bit" + f"-{args.rank}rank"
     base_model_dir = os.path.join(args.save_dir, model_name)
-    lora_model_dir = os.path.join(args.save_dir, model_name, "loft_init")
-
-    # save lora adapters first
-    lora_model.base_model.peft_config[
-        "default"
-    ].base_model_name_or_path = base_model_dir  # This can be a local path or Hub model id
-    lora_model.base_model.peft_config["default"].init_lora_weights = True  # Don't apply LoftQ when loading again
+    lora_model_dir = os.path.join(args.save_dir, model_name, "loftq_init")
 
     lora_model.save_pretrained(lora_model_dir)
     print_model(lora_model, "lora_model")
@@ -185,6 +179,22 @@ def quantize_and_save():
     tokenizer.save_pretrained(base_model_dir)
 
     print_model(base_model, "base_model")
+
+    # convert safetensor to bin
+    tensors = {}
+    with safe_open(os.path.join(lora_model_dir, "adapter_model.safetensors"), framework="pt") as f:
+        for k in f.keys():
+            tensors[k] = f.get_tensor(k)
+    torch.save(tensors, os.path.join(lora_model_dir, "adapter_model.bin"))
+
+    # change adapter_config.json
+    with open(os.path.join(lora_model_dir, "adapter_config.json"), "r") as fp:
+        adapter_config = json.load(fp)
+        adapter_config['base_model_name_or_path'] = base_model_dir  # This can be a local path or Hub model id
+        adapter_config['init_lora_weights'] = True  # Don't apply LoftQ when loading again
+        fp.close()
+    with open(os.path.join(lora_model_dir, "adapter_config.json"), "w") as fp:
+        json.dump(adapter_config, fp, indent=2)
 
     return base_model_dir, lora_model_dir
 
