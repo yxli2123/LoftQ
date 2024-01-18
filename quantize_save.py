@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import argparse
+import json
 import os
 
 import torch
@@ -26,6 +27,7 @@ from transformers import (
 )
 
 from peft import LoftQConfig, LoraConfig, TaskType, get_peft_model
+from safetensors import save_open
 
 
 class Shell(nn.Module):
