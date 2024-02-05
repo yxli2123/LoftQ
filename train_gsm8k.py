@@ -41,9 +41,9 @@ class ModelArguments:
     )
     full_precision:  bool = field(
         default=False,
-        metadata={"help": "True: Use bitsandbytes Linear4bit, real quantization"
-                          "False: Use quantization equivalent fp16/fp32 weights."
-                          "Note: Set False for data parallel training"
+        metadata={"help": "False: Use bitsandbytes Linear4bit, real quantization"
+                          "True: Use quantization equivalent fp16/fp32 weights."
+                          "Note: Set True for data parallel training"
                   },
     )
     rank: int = field(
