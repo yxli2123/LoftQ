@@ -1,6 +1,6 @@
 transformers
 accelerate
-git+https://github.com/huggingface/peft.git
+peft
 evaluate
 scikit-learn
 scipy

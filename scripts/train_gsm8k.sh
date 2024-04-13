@@ -1,6 +1,6 @@
-# train 4-bit 64-rank llama-2-7b with LoftQ on GSM8K using 8 A100s
+# LoftQ: train 4-bit 64-rank llama-2-7b with LoftQ on GSM8K using 8 A100s
+# global batch_size=64
 accelerate launch train_gsm8k.py \
-  --full_precision \
   --model_name_or_path LoftQ/Llama-2-7b-hf-4bit-64rank \
   --learning_rate 3e-4 \
   --seed 11 \
@@ -8,7 +8,7 @@ accelerate launch train_gsm8k.py \
   --output_dir exp_results/ \
   --num_train_epochs 6 \
   --per_device_train_batch_size 2 \
-  --gradient_accumulation_steps 1 \
+  --gradient_accumulation_steps 4 \
   --evaluation_strategy "no" \
   --save_strategy "epoch" \
   --weight_decay 0.1 \
@@ -18,26 +18,9 @@ accelerate launch train_gsm8k.py \
   --do_train \
   --report_to tensorboard
 
-# train 4-bit 64-rank llama-2-7b with LoftQ on GSM8K using one A100
-python train_gsm8k.py \
-  --model_name_or_path LoftQ/Llama-2-7b-hf-4bit-64rank \
-  --learning_rate 3e-4 \
-  --seed 11 \
-  --expt_name gsm8k_llama2_7b_4bit_64rank_loftq \
-  --output_dir exp_results/ \
-  --num_train_epochs 6 \
-  --per_device_train_batch_size 2 \
-  --gradient_accumulation_steps 8 \
-  --evaluation_strategy "no" \
-  --save_strategy "epoch" \
-  --weight_decay 0.1 \
-  --warmup_ratio 0.03 \
-  --lr_scheduler_type "cosine" \
-  --logging_steps 10 \
-  --do_train \
-  --report_to tensorboard
 
-# train 4-bit 64-rank llama-2-7b with QLoRA on GSM8K using one A100
+# QLoRA: train 4-bit 64-rank llama-2-7b with QLoRA on GSM8K using 8 A100s
+# global batch_size=64
 python train_gsm8k.py \
   --model_name_or_path meta-llama/Llama-2-7b-hf \
   --token YOUR_HF_TOKEN \
@@ -48,7 +31,7 @@ python train_gsm8k.py \
   --output_dir exp_results/ \
   --num_train_epochs 6 \
   --per_device_train_batch_size 2 \
-  --gradient_accumulation_steps 8 \
+  --gradient_accumulation_steps 4 \
   --evaluation_strategy "no" \
   --save_strategy "epoch" \
   --weight_decay 0.1 \
@@ -58,7 +41,8 @@ python train_gsm8k.py \
   --do_train \
   --report_to tensorboard
 
-# train 16-bit 64-rank llama-2-7b with LoRA on GSM8K using 8 A100s
+# LoRA: train 16-bit 64-rank llama-2-7b with LoRA on GSM8K using 8 A100s
+# global batch_size=64
 accelerate launch train_gsm8k.py \
   --full_precision \
   --model_name_or_path meta-llama/Llama-2-7b-hf \
@@ -70,7 +54,7 @@ accelerate launch train_gsm8k.py \
   --output_dir exp_results/ \
   --num_train_epochs 6 \
   --per_device_train_batch_size 2 \
-  --gradient_accumulation_steps 1 \
+  --gradient_accumulation_steps 4 \
   --evaluation_strategy "no" \
   --save_strategy "epoch" \
   --weight_decay 0.1 \

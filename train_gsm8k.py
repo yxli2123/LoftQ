@@ -43,16 +43,11 @@ class ModelArguments:
         default=False,
         metadata={"help": "False: Use bitsandbytes Linear4bit, real quantization"
                           "True: Use quantization equivalent fp16/fp32 weights."
-                          "Note: Set True for data parallel training"
                   },
     )
     rank: int = field(
         default=64,
         metadata={"help": "Rank of LoRA adapters. LoftQ does not require this config. Used for fp16 LoRA or QLoRA."},
-    )
-    bits: int = field(
-        default=4,
-        metadata={"help": "Bit of the backbone. LoftQ does not require this config. Used for QLoRA."},
     )
     lora_alpha: int = field(
         default=16,
@@ -227,7 +222,12 @@ def train():
     ##########################
     if model_args.lora_init:
         task_type = TaskType.CAUSAL_LM
-        target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj", "gate_proj"]
+        if any(name in model_args.model_name_or_path.lower() for name in ["llama", "mistral", "falcon"]):
+            target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj", "gate_proj"]
+        elif any(name in model_args.model_name_or_path.lower() for name in ["phi"]):
+            target_modules = ["q_proj", "k_proj", "v_proj", "dense", "fc1", "fc2"]
+        else:
+            raise ValueError(f"Only support LLAMA, Mistral, Falcon, Phi-2, but got {model_args.model_name_or_path}.")
         lora_config = LoraConfig(
             task_type=task_type,
             inference_mode=False,
@@ -239,18 +239,20 @@ def train():
         )
         model = get_peft_model(model, lora_config)
     elif model_args.adapter_name_or_path is not None:
-        model = PeftModel.from_pretrained(model,
-                                          model_args.adapter_name_or_path,
-                                          is_trainable=True,
-                                          token=model_args.token,
-                                          )
+        model = PeftModel.from_pretrained(
+            model,
+            model_args.adapter_name_or_path,
+            is_trainable=True,
+            token=model_args.token,
+        )
     else:
-        model = PeftModel.from_pretrained(model,
-                                          model_args.model_name_or_path,
-                                          subfolder='loftq_init',
-                                          is_trainable=True,
-                                          token=model_args.token,
-                                          )
+        model = PeftModel.from_pretrained(
+            model,
+            model_args.model_name_or_path,
+            subfolder='loftq_init',
+            is_trainable=True,
+            token=model_args.token,
+        )
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(
         model_args.model_name_or_path,

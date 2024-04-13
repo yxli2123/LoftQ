@@ -118,18 +118,20 @@ def evaluation(model_args, data_args):
     #       Peft Model       #
     ##########################
     if model_args.adapter_name_or_path is not None:
-        model = PeftModel.from_pretrained(model,
-                                          model_args.adapter_name_or_path,
-                                          is_trainable=False,
-                                          token=model_args.token,
-                                          )
+        model = PeftModel.from_pretrained(
+            model,
+            model_args.adapter_name_or_path,
+            is_trainable=False,
+            token=model_args.token,
+        )
     else:
-        model = PeftModel.from_pretrained(model,
-                                          model_args.model_name_or_path,
-                                          subfolder='gsm8k',
-                                          is_trainable=False,
-                                          token=model_args.token,
-                                          )
+        model = PeftModel.from_pretrained(
+            model,
+            model_args.model_name_or_path,
+            subfolder='gsm8k',
+            is_trainable=False,
+            token=model_args.token,
+        )
     model = model.to('cuda')
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(
@@ -200,7 +202,7 @@ def evaluation(model_args, data_args):
     model.eval()
     gen_kwargs = {
         "max_new_tokens": 256,
-        "temperature": 0.8,
+        "temperature": 0.1,
         "top_k": 40,
         "top_p": 0.95,
         "do_sample": True,
@@ -225,7 +227,7 @@ def evaluation(model_args, data_args):
 
     accuracy = compute_accuracy(answer, ans_pred_list)
 
-    print(f"adapter: {model_args.adapter_name_or_path} | GSM8K test accuracy: {accuracy} | "
+    print(f"adapter: {model_args.adapter_name_or_path} | GSM8K test accuracy: {100*accuracy:.2f}% | "
           f"full precision: {model_args.full_precision}")
 
 
