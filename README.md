@@ -26,7 +26,7 @@ However, we also provide fake quantization for fast and parallel training if GPU
 1. Apply LoftQ to a full-precision pre-trained weight and save.
 2. Load LoftQ initialization and train.
 
-For step 1, we have provided off-the-shelf LoftQ initializations (see [supported model list](#appendix-off-the-shelf-model-table)) 
+For step 1, we have provided off-the-shelf LoftQ initializations (see [supported model list](#appendix-off-the-shelf-model-list)) 
 in [Huggingface Hub LoftQ](https://huggingface.co/LoftQ).
 If you want to do it yourself, jump to [LoftQ DIY](#loftq-diy).
 
@@ -139,14 +139,6 @@ python train_gsm8k.py \
     --report_to tensorboard
 ```
 
-Here is the command to test GSM8K with adapters we have fine-tuned. It is stored in the `subfolder='gsm8k'` 
-of the target model in [LoftQ Huggingface hub](https://huggingface.co/LoftQ).
-```shell
-python test_gsm8k.py \
-    --model_name_or_path LoftQ/Llama-2-7b-hf-4bit-64rank \
-    --batch_size 16
-```
-
 ### Other training Files
 
 * GLUE: `glue/run_glue.py`
@@ -158,21 +150,22 @@ python test_gsm8k.py \
 More example scripts are in [scripts](scripts).
 
 ## Quick Evaluation
-A quick evaluation of LoftQ fine-tuning LLAMA-2-7b on GSM8K. 
-Feel free to change `batch_size` to accommodate to your machine.
+Here is the command to test GSM8K with adapters we have fine-tuned. It is stored in the `subfolder='gsm8k'` 
+of the target model in [LoftQ Huggingface hub](https://huggingface.co/LoftQ).
 ```shell
-python script/test_gsm8k.py \
-  --model_name_or_path LoftQ/Llama-2-7b-hf-4bit-64rank \
-  --batch_size 16 
+python test_gsm8k.py \
+    --model_name_or_path LoftQ/Llama-2-7b-hf-4bit-64rank \
+    --batch_size 16
 ```
 
-A quick evaluation of LoftQ fine-tuning phi-2 on GSM8K.
-Feel free to change `batch_size` to accommodate to your machine.
 ```shell
-python script/test_gsm8k.py \
-  --model_name_or_path LoftQ/phi-2-4bit-64rank \
-  --batch_size 16 
+python test_gsm8k.py \
+    --model_name_or_path LoftQ/phi-2-4bit-64rank \
+    --batch_size 16
 ```
+Feel free to change `batch_size` to accommodate to your machine.
+
+
 ## Main Results
 
 ### LLAMA-2 on WikiText-2 and GSM8K
@@ -245,7 +238,8 @@ Models are fine-tuned through causal language modeling on (reformatted) training
 
 ## Appendix: Off-the-shelf Model List
 | Model Name  | Bits | Ranks |
-| ----------- | ---- | ----- |
+|-------------| ---- | ----- |
+| Phi-2       | 4    | 64    |
 | LLAMA-2-7b  | 4    | 64    |
 | LLAMA-2-13b | 4    | 64    |
 | LLAMA-2-70b | 4    | 64    |
