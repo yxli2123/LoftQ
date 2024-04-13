@@ -4,7 +4,13 @@ LoftQ helps you fine-tune LLMs with limited GPUs. 🚀 LoftQ finds good enough q
 
 This repo implements the paper 🔗: [LoftQ: LoRA-Fine-Tuning-Aware Quantization for Large Language Models](https://arxiv.org/abs/2310.08659).
 
-Our models are available on Huggingface Hub 🤗 [LoftQ]((https://huggingface.co/LoftQ))
+Our models are available on Huggingface Hub 🤗 [LoftQ](https://huggingface.co/LoftQ)
+
+## News
+- [04/13/2024] new `phi-2` results on GSM8K. see results [here](#phi-2-on-gsm8k)
+
+- [04/13/2024] update `script/train_gsm8k.sh` to support data parallel of quantized models.
+
 
 ## Quick Start
 
@@ -151,10 +157,25 @@ python test_gsm8k.py \
 
 More example scripts are in [scripts](scripts).
 
+## Quick Evaluation
+A quick evaluation of LoftQ fine-tuning LLAMA-2-7b on GSM8K. 
+Feel free to change `batch_size` to accommodate to your machine.
+```shell
+python script/test_gsm8k.py \
+  --model_name_or_path LoftQ/Llama-2-7b-hf-4bit-64rank \
+  --batch_size 16 
+```
 
+A quick evaluation of LoftQ fine-tuning phi-2 on GSM8K.
+Feel free to change `batch_size` to accommodate to your machine.
+```shell
+python script/test_gsm8k.py \
+  --model_name_or_path LoftQ/phi-2-4bit-64rank \
+  --batch_size 16 
+```
 ## Main Results
 
-**LLAMA-2 on WikiText-2 and GSM8K**
+### LLAMA-2 on WikiText-2 and GSM8K
 
 | Bit  | WikiText-2 | WikiText-2  | GSM8K      | GSM8K       |
 | ---- | ---------- | ----------- | ---------- | ----------- |
@@ -168,7 +189,18 @@ More example scripts are in [scripts](scripts).
 
 Models are fine-tuned through causal language modeling on training sets and are tested on validation/test sets.
 
-**BART-large on CNN/DailyMail and XSum**
+### Phi-2 on GSM8K
+
+| Model   | Bits | Rank | LoRA Initial           | GSM8K     |
+| --------| ---- | ---- | ---------------------- | --------- |
+| Phi-2   | 16   | 64   | Full model fine-tuning | 66.8±1.2  |
+| Phi-2   | 16   | 64   | Gaussian + 0           | 64.8±0.5  |
+| Phi-2   | 4    | 64   | Gaussian + 0 (QLoRA)   | 60.2±0.6  |
+| Phi-2   | 4    | 64   | LoftQ                  | 64.1±0.7  |
+
+Models are fine-tuned through causal language modeling on (reformatted) training sets and are tested on validation/test sets.
+
+### BART-large on CNN/DailyMail and XSum
 
 | Bit     | Rank | XSum              | CNN/DailyMail     |
 |---------|------|-------------------|-------------------|
@@ -182,7 +214,7 @@ Models are fine-tuned through causal language modeling on training sets and are 
 
 *: Using the first 3 sentences in the document as the summary
 
-**DeBERTa-V3-base on GLUE using Normal Float Datatype**
+### DeBERTa-V3-base on GLUE using Normal Float Datatype
 
 | Bit | **Rank**| **MNLI** | **QNLI** | **RTE** | **SST** | **MRPC** | **CoLA** | **QQP** | **STSB** | **SQuAD** | **ANLI** |
 |----------|------------|----------|----------|---------|---------|----------|----------|---------|----------|-----------|----------|
@@ -191,7 +223,7 @@ Models are fine-tuned through causal language modeling on training sets and are 
 | 2        | 16     | **84.7/85.1** | **86.6** | **61.4** | **90.2** | **83.8/88.6** | **37.4** | **90.3/86.9** | **87.1/86.9** | **81.5/88.6** | **47.1** |
 | 2        | 32    | **86.0/86.1** | **89.9** | **61.7** | **92.0** | **83.6/87.2** | **47.5** | **91.0/87.9** | **87.5/87.0** | **82.9/89.8** | **49.0** |
 
-**DeBERTa-V3-base on GLUE using Uniform Quantization Datatype**
+### DeBERTa-V3-base on GLUE using Uniform Quantization Datatype
 
 | **Bit** | **Rank** | **MNLI** | **QNLI** | **RTE** | **SST** | **MRPC** | **CoLA** | **QQP** | **STSB** | **SQuAD** |
 |----------|------------|----------|----------|---------|---------|----------|----------|---------|----------|-----------|
