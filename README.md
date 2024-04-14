@@ -186,7 +186,7 @@ Models are fine-tuned through causal language modeling on training sets and are 
 
 | Model   | Bits | Rank | LoRA Initial           | GSM8K     |
 | --------| ---- | ---- | ---------------------- | --------- |
-| Phi-2   | 16   | 64   | Full model fine-tuning | 66.8±1.2  |
+| Phi-2   | 16   | -    | Full model fine-tuning | 66.8±1.2  |
 | Phi-2   | 16   | 64   | Gaussian + 0           | 64.8±0.5  |
 | Phi-2   | 4    | 64   | Gaussian + 0 (QLoRA)   | 60.2±0.6  |
 | Phi-2   | 4    | 64   | LoftQ                  | 64.1±0.7  |
