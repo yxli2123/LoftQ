@@ -7,7 +7,7 @@ This repo implements the paper 🔗: [LoftQ: LoRA-Fine-Tuning-Aware Quantization
 Our models are available on 🤗 [LoftQ Huggingface Hub](https://huggingface.co/LoftQ)
 
 ## News
-- [04/20/2024] New `LLAMA-3-8B`results on GSM8K. See results [here](#llama-3-on-gsm8k). Check out LoftQ of [LLAMA-3](https://huggingface.co/LoftQ/Meta-Llama-3-8B-4bit-64rank), [CodeLLAMA-7b](https://huggingface.co/LoftQ/CodeLlama-7b-hf-4bit-64rank), [CodeLLAMA=13b](https://huggingface.co/LoftQ/CodeLlama-13b-hf-4bit-64rank) on [Huggingface Hub](https://huggingface.co/LoftQ).
+- [04/20/2024] New `LLAMA-3-8B`results on GSM8K. See results [here](#llama-3-on-gsm8k). Check out LoftQ of 🦙 [LLAMA-3](https://huggingface.co/LoftQ/Meta-Llama-3-8B-4bit-64rank), [CodeLLAMA-7b](https://huggingface.co/LoftQ/CodeLlama-7b-hf-4bit-64rank), [CodeLLAMA=13b](https://huggingface.co/LoftQ/CodeLlama-13b-hf-4bit-64rank) on [Huggingface Hub](https://huggingface.co/LoftQ).
 
 - [04/13/2024] New `phi-2` results on GSM8K. See results [here](#phi-2-on-gsm8k). Check out LoftQ of [Phi-2](https://huggingface.co/LoftQ/phi-2-4bit-64rank) on [Huggingface Hub](https://huggingface.co/LoftQ).
 
