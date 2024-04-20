@@ -4,12 +4,14 @@ LoftQ helps you fine-tune LLMs with limited GPUs. 🚀 LoftQ finds good enough q
 
 This repo implements the paper 🔗: [LoftQ: LoRA-Fine-Tuning-Aware Quantization for Large Language Models](https://arxiv.org/abs/2310.08659).
 
-Our models are available on Huggingface Hub 🤗 [LoftQ](https://huggingface.co/LoftQ)
+Our models are available on 🤗 [LoftQ Huggingface Hub](https://huggingface.co/LoftQ)
 
 ## News
-- [04/13/2024] new `phi-2` results on GSM8K. see results [here](#phi-2-on-gsm8k)
+- [04/20/2024] New `LLAMA-3-8B`results on GSM8K. See results [here](#llama-3-on-gsm8k). Check out LoftQ of [LLAMA-3](https://huggingface.co/LoftQ/Meta-Llama-3-8B-4bit-64rank), [CodeLLAMA-7b](https://huggingface.co/LoftQ/CodeLlama-7b-hf-4bit-64rank), [CodeLLAMA=13b](https://huggingface.co/LoftQ/CodeLlama-13b-hf-4bit-64rank) on [Huggingface Hub](https://huggingface.co/LoftQ).
 
-- [04/13/2024] update `script/train_gsm8k.sh` to support data parallel of quantized models.
+- [04/13/2024] New `phi-2` results on GSM8K. See results [here](#phi-2-on-gsm8k). Check out LoftQ of [Phi-2](https://huggingface.co/LoftQ/phi-2-4bit-64rank) on [Huggingface Hub](https://huggingface.co/LoftQ).
+
+- [04/13/2024] Update `script/train_gsm8k.sh` to support data parallel of quantized models.
 
 
 ## Quick Start
@@ -191,6 +193,16 @@ Models are fine-tuned through causal language modeling on training sets and are 
 | Phi-2   | 4    | 64   | Gaussian + 0 (QLoRA)   | 60.2±0.6  |
 | Phi-2   | 4    | 64   | LoftQ                  | 64.1±0.7  |
 
+### LLAMA-3 on GSM8K
+
+| Model      | Bits | Rank | LoRA Initial           | GSM8K     |
+| -----------| ---- | ---- | ---------------------- | --------- |
+| LLAMA-3-8B | 16   | -    | Full model fine-tuning | 70.4±0.7  |
+| LLAMA-3-8B | 16   | 64   | Gaussian + 0 (LoRA)    | 69.3±1.5  |
+| LLAMA-3-8B | 4    | 64   | Gaussian + 0 (QLoRA)   | 67.4±1.0  |
+| LLAMA-3-8B | 4    | 64   | LoftQ                  | 68.0±0.6  |
+
+
 Models are fine-tuned through causal language modeling on (reformatted) training sets and are tested on validation/test sets.
 
 ### BART-large on CNN/DailyMail and XSum
@@ -238,14 +250,17 @@ Models are fine-tuned through causal language modeling on (reformatted) training
 
 ## Appendix: Off-the-shelf Model List
 | Model Name  | Bits | Ranks |
-|-------------| ---- | ----- |
-| Phi-2       | 4    | 64    |
-| LLAMA-2-7b  | 4    | 64    |
-| LLAMA-2-13b | 4    | 64    |
-| LLAMA-2-70b | 4    | 64    |
-| Mistral     | 4    | 64    |
-| Mistral     | 4    | 32    |
-| BART-large  | 4    | 8     |
-| BART-large  | 4    | 16    |
-| BART-large  | 4    | 32    |
-| BART-large  | 2    | 8     |
+|---------------| ---- | ----- |
+| LLAMA-3-8B    | 4    | 64    |
+| CodeLLAMA-7b  | 4    | 64    |
+| CodeLLAMA-13b | 4    | 64    |
+| Phi-2         | 4    | 64    |
+| LLAMA-2-7b    | 4    | 64    |
+| LLAMA-2-13b   | 4    | 64    |
+| LLAMA-2-70b   | 4    | 64    |
+| Mistral       | 4    | 64    |
+| Mistral       | 4    | 32    |
+| BART-large    | 4    | 8     |
+| BART-large    | 4    | 16    |
+| BART-large    | 4    | 32    |
+| BART-large    | 2    | 8     |
