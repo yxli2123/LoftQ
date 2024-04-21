@@ -114,6 +114,30 @@ def evaluation(model_args, data_args):
                 bnb_4bit_quant_type='nf4',
             ),
         )
+        tokenizer = transformers.AutoTokenizer.from_pretrained(
+        model_args.model_name_or_path,
+        token=model_args.token,
+        model_max_length=model_args.model_max_length,
+        padding_side="left",
+        use_fast=False,
+    )
+
+    special_tokens_dict = dict()
+    if tokenizer.pad_token is None:
+        special_tokens_dict["pad_token"] = DEFAULT_PAD_TOKEN
+    if tokenizer.eos_token is None:
+        special_tokens_dict["eos_token"] = DEFAULT_EOS_TOKEN
+    if tokenizer.bos_token is None:
+        special_tokens_dict["bos_token"] = DEFAULT_BOS_TOKEN
+    if tokenizer.unk_token is None:
+        special_tokens_dict["unk_token"] = DEFAULT_UNK_TOKEN
+
+    smart_tokenizer_and_embedding_resize(
+        special_tokens_dict=special_tokens_dict,
+        tokenizer=tokenizer,
+        model=model,
+    )
+
     ##########################
     #       Peft Model       #
     ##########################
@@ -134,28 +158,6 @@ def evaluation(model_args, data_args):
         )
     model = model.to('cuda')
 
-    tokenizer = transformers.AutoTokenizer.from_pretrained(
-        model_args.model_name_or_path,
-        token=model_args.token,
-        model_max_length=model_args.model_max_length,
-        padding_side="left",
-        use_fast=False,
-    )
-    special_tokens_dict = dict()
-    if tokenizer.pad_token is None:
-        special_tokens_dict["pad_token"] = DEFAULT_PAD_TOKEN
-    if tokenizer.eos_token is None:
-        special_tokens_dict["eos_token"] = DEFAULT_EOS_TOKEN
-    if tokenizer.bos_token is None:
-        special_tokens_dict["bos_token"] = DEFAULT_BOS_TOKEN
-    if tokenizer.unk_token is None:
-        special_tokens_dict["unk_token"] = DEFAULT_UNK_TOKEN
-
-    smart_tokenizer_and_embedding_resize(
-        special_tokens_dict=special_tokens_dict,
-        tokenizer=tokenizer,
-        model=model,
-    )
 
     ######################
     #      dataset       #
