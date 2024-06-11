@@ -18,6 +18,26 @@ accelerate launch train_gsm8k.py \
   --do_train \
   --report_to tensorboard
 
+# LoftQ: train 4-bit 64-rank llama-3-8b with LoftQ on GSM8K using 8 A100s
+# global batch_size=64
+accelerate launch train_gsm8k.py \
+  --model_name_or_path LoftQ/Llama-2-7b-hf-4bit-64rank \
+  --learning_rate 5e-4 \
+  --seed 11 \
+  --expt_name gsm8k_llama3_8b_4bit_64rank_loftq_fake \
+  --output_dir exp_results/ \
+  --num_train_epochs 3 \
+  --per_device_train_batch_size 2 \
+  --gradient_accumulation_steps 4 \
+  --evaluation_strategy "no" \
+  --save_strategy "epoch" \
+  --weight_decay 0.1 \
+  --warmup_ratio 0.03 \
+  --lr_scheduler_type "cosine" \
+  --logging_steps 10 \
+  --do_train \
+  --report_to tensorboard
+
 
 # QLoRA: train 4-bit 64-rank llama-2-7b with QLoRA on GSM8K using 8 A100s
 # global batch_size=64
