@@ -21,7 +21,7 @@ accelerate launch train_gsm8k.py \
 # LoftQ: train 4-bit 64-rank llama-3-8b with LoftQ on GSM8K using 8 A100s
 # global batch_size=64
 accelerate launch train_gsm8k.py \
-  --model_name_or_path LoftQ/Llama-2-7b-hf-4bit-64rank \
+  --model_name_or_path LoftQ/Meta-Llama-3-8B-4bit-64rank \
   --learning_rate 5e-4 \
   --seed 11 \
   --expt_name gsm8k_llama3_8b_4bit_64rank_loftq_fake \
